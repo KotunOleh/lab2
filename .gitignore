@@ -367,3 +367,5 @@ build/
 .vscode/
 
 build_release/
+
+build_debug/
