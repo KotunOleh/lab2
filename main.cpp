@@ -127,7 +127,7 @@ void test_parallel_count_if(const vector<int>& data) {
         double best_time = best_result_it->second;
 
         cout << "\n   Results:\n";
-        cout << "   - Best speed: " << fixed << setprecision(4) << best_time << " (achieved at K = " << best_k << "\n";
+        cout << "   - Best speed: " << fixed << setprecision(4) << best_time << " achieved at K = " << best_k << "\n";
         cout << "   - Ratio: " << static_cast<double>(best_k) / hardware_threads << " (Best K: " << best_k << " / Cores: " << hardware_threads << ").\n";
     }
 }
