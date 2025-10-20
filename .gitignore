@@ -364,4 +364,6 @@ FodyWeavers.xsd
 
 build/
 
-.vscode/ 
+.vscode/
+
+build_release/

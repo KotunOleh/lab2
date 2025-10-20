@@ -20,15 +20,14 @@ void timeit(F &&f)
 */
 
 template <class F>
-void timeit(F &&f, int repeat=1)
+auto timeit(F &&f, int repeat = 1)
 {
-    auto time1 = chrono::system_clock::now();
+    auto time1 = std::chrono::high_resolution_clock::now();
+    
     while (repeat--)
         f();
-    auto time2 = chrono::system_clock::now();
-    auto tdiff = time2 - time1;
-    if (tdiff > 100000ns)
-        cout << format("{:%S}", tdiff) << endl;
-    else
-        cout << tdiff << endl;
+    
+    auto time2 = std::chrono::high_resolution_clock::now();
+    
+    return (time2 - time1);
 }
