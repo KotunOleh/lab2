@@ -10,4 +10,6 @@ add_executable(lab2 main.cpp)
 
 find_package(Threads REQUIRED)
 
+add_compile_options(/O3)
+
 target_link_libraries(lab2 PRIVATE Threads::Threads)

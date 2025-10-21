@@ -9,8 +9,12 @@
 #include <iomanip>
 #include <numeric>
 #include <format>
+#include <chrono>    
+#include <algorithm>  
+#include <limits>      
 
 using namespace std;
+const int NUM_ITERATIONS = 15;
 
 vector<int> randVectorGenerator(size_t size) {
     vector<int> data(size);
@@ -24,35 +28,55 @@ bool isEven(int a) {return a % 2 == 0;}
 
 void stdLibraryAlgo(const vector<int>& data) {
     cout << "\nResearching std library algorithm on data size: " << data.size() << "\n";
+    cout << "(Averaged over " << NUM_ITERATIONS << " iterations)\n";
     
     long long count_result;
 
     cout << "- Without policies: ";
-    auto duration1 = timeit([&]() {
-        count_result = count_if(data.begin(), data.end(), isEven);
-    });
-    chrono::duration<double, milli> ms_double1 = duration1;
+    auto total_duration1 = chrono::nanoseconds(0);
+    for(int i = 0; i < NUM_ITERATIONS; ++i) {
+        total_duration1 += timeit([&]() {
+            count_result = count_if(data.begin(), data.end(), isEven);
+        });
+    }
+    auto avg_duration1 = total_duration1 / NUM_ITERATIONS;
+    chrono::duration<double, milli> ms_double1 = avg_duration1;
     cout << fixed << setprecision(4) << ms_double1.count() << " ms\n";
 
+
     cout << "- With execution::seq policy: ";
-    auto duration2 = timeit([&]() {
-        count_result = count_if(execution::seq, data.begin(), data.end(), isEven);
-    });
-    chrono::duration<double, milli> ms_double2 = duration2;
+    auto total_duration2 = chrono::nanoseconds(0);
+    for(int i = 0; i < NUM_ITERATIONS; ++i) {
+        total_duration2 += timeit([&]() {
+            count_result = count_if(execution::seq, data.begin(), data.end(), isEven);
+        });
+    }
+    auto avg_duration2 = total_duration2 / NUM_ITERATIONS;
+    chrono::duration<double, milli> ms_double2 = avg_duration2;
     cout << fixed << setprecision(4) << ms_double2.count() << " ms\n";
 
+
     cout << "- With execution::par policy: ";
-    auto duration3 = timeit([&]() {
-        count_result = count_if(execution::par, data.begin(), data.end(), isEven);
-    });
-    chrono::duration<double, milli> ms_double3 = duration3;
+    auto total_duration3 = chrono::nanoseconds(0);
+    for(int i = 0; i < NUM_ITERATIONS; ++i) {
+        total_duration3 += timeit([&]() {
+            count_result = count_if(execution::par, data.begin(), data.end(), isEven);
+        });
+    }
+    auto avg_duration3 = total_duration3 / NUM_ITERATIONS;
+    chrono::duration<double, milli> ms_double3 = avg_duration3;
     cout << fixed << setprecision(4) << ms_double3.count() << " ms\n";
 
+
     cout << "- With execution::par_unseq policy: ";
-    auto duration4 = timeit([&]() {
-        count_result = count_if(execution::par_unseq, data.begin(), data.end(), isEven);
-    });
-    chrono::duration<double, milli> ms_double4 = duration4;
+    auto total_duration4 = chrono::nanoseconds(0);
+    for(int i = 0; i < NUM_ITERATIONS; ++i) {
+        total_duration4 += timeit([&]() {
+            count_result = count_if(execution::par_unseq, data.begin(), data.end(), isEven);
+        });
+    }
+    auto avg_duration4 = total_duration4 / NUM_ITERATIONS;
+    chrono::duration<double, milli> ms_double4 = avg_duration4;
     cout << fixed << setprecision(4) << ms_double4.count() << " ms\n";
     
     cout << "Amount of even nums: " << count_result << "\n";
@@ -92,6 +116,7 @@ long long parallel_count_if(const vector<int>& data, size_t k) {
 
 void test_parallel_count_if(const vector<int>& data) {
     cout << "\nResearch parallel algorithms on data size " << data.size() << "\n";
+    cout << "(Averaged over " << NUM_ITERATIONS << " iterations)\n";
     
     const unsigned int hardware_threads = thread::hardware_concurrency();
     cout << "Amount of hardware threads: " << hardware_threads << "\n\n";
@@ -104,14 +129,18 @@ void test_parallel_count_if(const vector<int>& data) {
 
     for (size_t k = 1; k <= max_k; ++k) {
         
-        auto duration_obj = timeit([&]() {
-            count_result = parallel_count_if(data, k);
-        });
+        auto total_duration_k = chrono::nanoseconds(0);
+        for(int i = 0; i < NUM_ITERATIONS; ++i) {
+            total_duration_k += timeit([&]() {
+                count_result = parallel_count_if(data, k);
+            });
+        }
+        auto avg_duration_k = total_duration_k / NUM_ITERATIONS;
 
-        chrono::duration<double, milli> duration_ms = duration_obj;
+        chrono::duration<double, milli> duration_ms = avg_duration_k;
         double time_ms = duration_ms.count();
 
-        cout << "For K: " << k << " time is " <<  fixed << setprecision(4) << time_ms << " ms\n";
+        cout << "For K: " << k << " time is " << fixed << setprecision(4) << time_ms << " ms\n";
         
         results.push_back({k, time_ms});
     }
@@ -136,7 +165,7 @@ int main() {
     const vector<size_t> vector_sizes = {100000, 1000000, 10000000};
 
     for (const auto size : vector_sizes) {
-        cout << "\n    Testing for: " << size << "\n";
+        cout << "\n     Testing for: " << size << "\n";
         
         auto data_vector = randVectorGenerator(size);
         stdLibraryAlgo(data_vector);
@@ -148,4 +177,5 @@ int main() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
     cin.get();
 
-    return 0;}
+    return 0;
+}
